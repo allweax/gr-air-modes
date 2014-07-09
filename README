@@ -27,6 +27,9 @@ AUTHOR
 
 Nick Foster <bistromath@gmail.com>
 
+
+allweax <adayuer@gmail.com>
+
 ========================================================================
 OVERVIEW
 
@@ -89,6 +92,10 @@ save raw data and forward it to the author. To save time, note that
 receiving a small number of spurious reports is expected; false reports
 can be excluded by looking for multiple reports from the same aircraft
 (i.e., the same ICAO 6-digit hexadecimal number).
+
+
+NEWS:
+* Add socks5 and http proxy support.   <adayuer@gmail.com>
 
 ========================================================================
 REQUIREMENTS

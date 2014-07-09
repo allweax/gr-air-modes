@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>687</width>
-    <height>422</height>
+    <height>580</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -330,6 +330,91 @@
              </property>
             </widget>
            </widget>
+           <widget class="QGroupBox" name="group_proxy">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>280</y>
+              <width>236</width>
+              <height>200</height>
+             </rect>
+            </property>
+            <property name="title">
+             <string>Proxy</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+            </property>
+            <widget class="QLabel" name="label_proxy_type">
+             <property name="geometry">
+              <rect>
+               <x>11</x>
+               <y>36</y>
+               <width>66</width>
+               <height>17</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Type</string>
+             </property>
+            </widget>
+            <widget class="QComboBox" name="combo_proxy_type">
+             <property name="geometry">
+              <rect>
+               <x>90</x>
+               <y>30</y>
+               <width>121</width>
+               <height>27</height>
+              </rect>
+             </property>
+            </widget>
+            <widget class="QLabel" name="label_proxy_host">
+             <property name="geometry">
+              <rect>
+               <x>11</x>
+               <y>66</y>
+               <width>71</width>
+               <height>20</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Host</string>
+             </property>
+            </widget>
+            <widget class="QLineEdit" name="line_proxy_host">
+             <property name="geometry">
+              <rect>
+               <x>90</x>
+               <y>62</y>
+               <width>121</width>
+               <height>27</height>
+              </rect>
+             </property>
+            </widget>            
+            <widget class="QLabel" name="label_proxy_port">
+             <property name="geometry">
+              <rect>
+               <x>11</x>
+               <y>96</y>
+               <width>71</width>
+               <height>20</height>
+              </rect>
+             </property>
+             <property name="text">
+              <string>Port</string>
+             </property>
+            </widget>
+            <widget class="QLineEdit" name="line_proxy_port">
+             <property name="geometry">
+              <rect>
+               <x>90</x>
+               <y>92</y>
+               <width>121</width>
+               <height>27</height>
+              </rect>
+             </property>
+            </widget>            
+           </widget>           
            <widget class="QGroupBox" name="group_output">
             <property name="geometry">
              <rect>

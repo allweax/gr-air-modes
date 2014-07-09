@@ -23,6 +23,7 @@ import os, sys, time, threading, datetime, math, csv, tempfile, ConfigParser
 from optparse import OptionParser
 from PyQt4 import QtCore,QtGui,QtWebKit
 from PyQt4.Qwt5 import Qwt
+from PyQt4.QtNetwork import QNetworkProxy
 from gnuradio import gr, eng_notation
 from gnuradio.eng_option import eng_option
 from gnuradio.gr.pubsub import pubsub
@@ -43,13 +44,19 @@ class mainwindow(QtGui.QMainWindow):
         #set defaults
         #add file, RTL, UHD sources
         self.ui.combo_source.addItems(["UHD", "Osmocom", "File/UDP"])
+        self.ui.combo_proxy_type.addItems(["None", "Socks5", "Http"])
         self.ui.combo_source.setCurrentIndex(0)
 
         #populate antenna, rate combo boxes based on source
         self.populate_source_options()
 
         defaults = self.get_defaults()
-
+        
+        #if defaults["source"] is not None:
+        #    self.ui.combo_source.setCurrentIndex(self.ui.combo_source.findText(defaults["source"]))
+        #else:
+        #    self.ui.combo_source.setCurrentIndex(0)
+        
         #should round to actual achieved gain
         self.ui.line_gain.insert(defaults["gain"])
 
@@ -87,6 +94,14 @@ class mainwindow(QtGui.QMainWindow):
             self.ui.line_my_lat.insert(defaults["latitude"])
         if defaults["longitude"] is not None:
             self.ui.line_my_lon.insert(defaults["longitude"])
+            
+        if defaults["proxy"] is not None:
+            self.ui.combo_proxy_type.setCurrentIndex(self.ui.combo_proxy_type.findText(defaults["proxy"]))
+        else:
+            self.ui.combo_proxy_type.setCurrentIndex(0)
+            
+        self.ui.line_proxy_host.setText(defaults["proxyhost"])
+        self.ui.line_proxy_port.setText(defaults["proxyport"])
 
         #disable by default
         self.ui.check_adsbonly.setCheckState(QtCore.Qt.Unchecked)
@@ -144,6 +159,10 @@ class mainwindow(QtGui.QMainWindow):
         self.ui.combo_rate.currentIndexChanged['QString'].connect(self.update_sample_rate)
         self.ui.line_gain.editingFinished.connect(self.update_gain)
         self.ui.combo_source.currentIndexChanged['QString'].connect(self.populate_source_options)
+
+        #hook up proxy type changed
+        self.ui.combo_proxy_type.currentIndexChanged['QString'].connect(self.populate_proxy_options)
+
 
         #hook up live data text box update signal
         self.live_data_changed_signal.connect(self.on_append_live_data)
@@ -269,9 +288,19 @@ class mainwindow(QtGui.QMainWindow):
                 self.ui.check_pmf.setChecked(True)
             self.ui.combo_rate.setCurrentIndex(self.rates.index(recommended_rate))
 
+    def populate_proxy_options(self):
+        proxytype = self.ui.combo_proxy_type.currentText()
+        if "socks5" == str(proxytype).lower():
+            self.ui.line_proxy_port.setText("1080")
+        elif "http" == str(proxytype).lower():
+            self.ui.line_proxy_port.setText("8118")
+
 ################ action handlers ####################
     def on_combo_source_currentIndexChanged(self, index):
         self.populate_source_options()
+        
+    def on_combo_proxy_type_currentIndexChanged(self, index):
+        self.populate_proxy_options()
 
     def on_button_start_released(self):
         #if we're already running, kill it!
@@ -298,6 +327,13 @@ class mainwindow(QtGui.QMainWindow):
             options.threshold = float(self.ui.line_threshold.text())
             options.pmf = self.ui.check_pmf.isChecked()
             options.dcblock = self.ui.check_dcblock.isChecked()
+            
+            if "socks5" == str(self.ui.combo_proxy_type.currentText()).lower():
+                QNetworkProxy.setApplicationProxy(QNetworkProxy(QNetworkProxy.Socks5Proxy, self.ui.line_proxy_host.text(), int(self.ui.line_proxy_port.text())))
+            elif "http" == str(self.ui.combo_proxy_type.currentText()).lower():
+                QNetworkProxy.setApplicationProxy(QNetworkProxy(QNetworkProxy.HttpProxy, self.ui.line_proxy_host.text(), int(self.ui.line_proxy_port.text())))
+            else:
+                QNetworkProxy.setApplicationProxy(QNetworkProxy(QNetworkProxy.NoProxy, "", 0))
 
             self._servers = ["inproc://modes-radio-pub"] #TODO ADD REMOTES
             self._relay = air_modes.zmq_pubsub_iface(self.context, subaddr=self._servers, pubaddr=None)
@@ -392,6 +428,9 @@ class mainwindow(QtGui.QMainWindow):
             self.prefs["rawport"] = int(self.ui.line_rawport.text())
             self.prefs["kml"] = "1" if self.ui.check_kml.isChecked() else "0"
             self.prefs["kmlfile"] = self.ui.line_kmlfilename.text()
+            self.prefs["proxy"] = self.ui.combo_proxy_type.currentText()
+            self.prefs["proxyhost"] = self.ui.line_proxy_host.text()
+            self.prefs["proxyport"] = int(self.ui.line_proxy_port.text())
             try:
                 self.prefs["latitude"] = float(self.ui.line_my_lat.text())
                 self.prefs["longitude"] = float(self.ui.line_my_lon.text())
@@ -443,7 +482,7 @@ class mainwindow(QtGui.QMainWindow):
         defaults["pmf"] = None
         defaults["dcblock"] = None
         defaults["antenna"] = None
-        defaults["gain"] = "25"
+        defaults["gain"] = "34"
         defaults["kml"] = "1"
         defaults["kmlfile"] = "modes.kml"
         defaults["sbs1"] = "0"
@@ -456,6 +495,9 @@ class mainwindow(QtGui.QMainWindow):
         defaults["threshold"] = "5"
         defaults["latitude"] = None
         defaults["longitude"] = None
+        defaults["proxy"] = "Socks5"
+        defaults["proxyhost"] = "127.0.0.1"
+        defaults["proxyport"] = "1080"
 
         prefs = ConfigParser.ConfigParser(defaults)
         prefs.optionxform = str
