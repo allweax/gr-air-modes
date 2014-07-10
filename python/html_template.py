@@ -73,9 +73,11 @@ def html_template(my_position, json_file):
             function refreshIcons() {
                 for (var airplane in airplanes) {
                     if (airplanes[airplane].highlight != 0) {
-                        icon_file = "http://www.nerdnetworks.org/~bistromath/airplane_sprite_highlight.png";
+                        //icon_file = "http://www.nerdnetworks.org/~bistromath/airplane_sprite_highlight.png";
+                        icon_file = "airplane_sprite_highlight.png";
                     } else {
-                        icon_file = "http://www.nerdnetworks.org/~bistromath/airplane_sprite.png";
+                        //icon_file = "http://www.nerdnetworks.org/~bistromath/airplane_sprite.png";
+                        icon_file = "airplane_sprite.png";
                     };
                     var plane_icon = {
                         url: icon_file,

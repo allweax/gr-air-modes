@@ -70,6 +70,9 @@ GR_PYTHON_INSTALL(
     DESTINATION ${GR_PYTHON_DIR}/air_modes
 )
 
+INSTALL(FILES airplane_sprite_highlight.png DESTINATION ${GR_PYTHON_DIR}/air_modes)
+INSTALL(FILES airplane_sprite.png DESTINATION ${GR_PYTHON_DIR}/air_modes)
+
 ########################################################################
 # Handle the unit tests
 ########################################################################

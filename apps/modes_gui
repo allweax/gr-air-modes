@@ -19,7 +19,7 @@
 # Boston, MA 02110-1301, USA.
 # 
 
-import os, sys, time, threading, datetime, math, csv, tempfile, ConfigParser
+import os, os.path, shutil, sys, time, threading, datetime, math, csv, tempfile, ConfigParser
 from optparse import OptionParser
 from PyQt4 import QtCore,QtGui,QtWebKit
 from PyQt4.Qwt5 import Qwt
@@ -171,6 +171,15 @@ class mainwindow(QtGui.QMainWindow):
         self._pending_msgstr = ""
 
         self.prefs = None
+        
+        #copy images to /tmp
+        self.airplane_sprite_highlight = "/airplane_sprite_highlight.png"
+        self.airplane_sprite = "/airplane_sprite.png"
+        if not os.path.exists("/tmp" + self.airplane_sprite_highlight):
+            shutil.copy(os.path.dirname(air_modes.__file__) + self.airplane_sprite_highlight, "/tmp" + self.airplane_sprite_highlight)
+        if not os.path.exists("/tmp" + self.airplane_sprite):
+            shutil.copy(os.path.dirname(air_modes.__file__) + self.airplane_sprite, "/tmp" + self.airplane_sprite)
+            
 
     def update_sample_rate(self, rate):
         if self.running:
@@ -250,7 +259,9 @@ class mainwindow(QtGui.QMainWindow):
 
         elif sourceid == "Osmocom":
             try:
+                #print "starting import osmosdr ...\n"
                 import osmosdr
+                #print "osmosdr was imported!\n"
                 self.src = osmosdr.source("")
                 self.rates = [rate.start() for rate in self.src.get_sample_rates() if (rate.start() % 2.e6) == 0]
                 self.antennas = ["RX"]
@@ -341,7 +352,9 @@ class mainwindow(QtGui.QMainWindow):
             if self.ui.check_raw.checkState():
                 options.tcp = int(self.ui.line_rawport.text())
 
+            #print "starting create self._radio ..."
             self._radio = air_modes.modes_radio(options, self.context)
+            #print "self._radio was created!"
             self._publisher = pubsub()
             self._relay.subscribe("dl_data", air_modes.make_parser(self._publisher))
 
@@ -389,6 +402,7 @@ class mainwindow(QtGui.QMainWindow):
             self.dbwriter = air_modes.output_sql(self._cpr_dec, self.dbname, self.lock, self._publisher)
             self.jsonpgen = air_modes.output_jsonp(self._jsonfile.name, self.dbname, my_position, self.lock, timeout=1)
             htmlstring = air_modes.html_template(my_position, self._jsonfile.name)
+            #print htmlstring
             self._htmlfile.write(htmlstring)
             self._htmlfile.flush()
             class WebPage(QtWebKit.QWebPage):
